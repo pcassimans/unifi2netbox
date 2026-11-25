@@ -1,3 +1,4 @@
+
 FROM python:3.12-slim AS builder
 
 WORKDIR /build
@@ -14,10 +15,15 @@ LABEL org.opencontainers.image.title="unifi2netbox" \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# Configurable application UID/GID
+ARG PUID=1000
+ARG PGID=1000
+
 WORKDIR /app
 
 # iputils-ping is needed for DHCP static-IP candidate verification
-RUN apt-get update && \
+RUN apt-get update && 
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends iputils-ping && \
     rm -rf /var/lib/apt/lists/*
 
@@ -28,10 +34,16 @@ COPY sync/ /app/sync/
 COPY unifi/ /app/unifi/
 COPY data/ /app/data/
 
-RUN addgroup --system app && \
-    adduser --system --ingroup app --home /home/app app && \
+# Create application group and user with configurable IDs
+RUN groupadd --gid ${PGID} app && \
+    useradd --uid ${PUID} \
+            --gid ${PGID} \
+            --create-home \
+            --home-dir /home/app \
+            --shell /usr/sbin/nologin \
+            app && \
     mkdir -p /app/logs && \
-    chown -R app:app /app /home/app
+    chown -R ${PUID}:${PGID} /app /home/app
 
 USER app
 
