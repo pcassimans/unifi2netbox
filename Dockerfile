@@ -22,7 +22,8 @@ ARG PGID=1000
 WORKDIR /app
 
 # iputils-ping is needed for DHCP static-IP candidate verification
-RUN apt-get update && apt-get upgrade -y && \
+RUN apt-get update && 
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends iputils-ping && \
     rm -rf /var/lib/apt/lists/*
 
