@@ -1,11 +1,11 @@
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim@sha256:63bb298d2b7b88f176f51b5189f54ce6535c997682ea70885d2132f5d473a8a5 AS builder
 
 WORKDIR /build
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ---------------------------------------------------------------------------
-FROM python:3.12-slim
+FROM python:3.15-slim@sha256:63bb298d2b7b88f176f51b5189f54ce6535c997682ea70885d2132f5d473a8a5
 
 LABEL org.opencontainers.image.title="unifi2netbox" \
       org.opencontainers.image.description="Sync UniFi devices, interfaces, VLANs, WLANs and cables into NetBox" \
@@ -18,6 +18,7 @@ WORKDIR /app
 
 # iputils-ping is needed for DHCP static-IP candidate verification
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends iputils-ping && \
     rm -rf /var/lib/apt/lists/*
 
